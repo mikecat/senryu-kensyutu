@@ -1,6 +1,8 @@
 川柳報告
 ========
 
+https://mikecat.github.io/senryu-kensyutu/
+
 ## 概要
 
 各種テレビ番組・ラジオ番組・アニメから検出した川柳を報告していく。
