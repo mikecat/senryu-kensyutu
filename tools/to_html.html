@@ -1,0 +1,46 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<title>HTML化</title>
+<script>
+function esukeepu(str) {
+	return str.replaceAll("<", "&lt;").replaceAll(">", "&gt;").replaceAll("&", "&amp;");
+}
+
+function convert() {
+	const input_data = document.getElementById("input_area").value.replaceAll("\r\n", "\n").replaceAll("\r", "\n").split("\n");
+	let result = "";
+	let want_ul = true;
+	for (let i = 0; i < input_data.length; i++) {
+		if (input_data[i].substr(0, 1) === "#") {
+			const str = input_data[i].substr(1).replace(/^\s+/, "");
+			if (!want_ul) result += "</ul>\n\n";
+			result += "<h2>" + esukeepu(str) + "</h2>\n";
+			want_ul = true;
+		} else if (input_data[i] !== "") {
+			if (want_ul) result += "<ul>\n";
+			result += "<li>" + esukeepu(input_data[i]) + "</li>\n";
+			want_ul = false;
+		}
+	}
+	if (!want_ul) result += "</ul>\n";
+	document.getElementById("output_area").value = result;
+}
+</script>
+</head>
+<body>
+<h1>HTML化</h1>
+
+<p><code>#</code>で始まる行 → タイトル</p>
+<p>その他の行(空行は除く) → 川柳</p>
+
+<h2>入力</h2>
+<p><textarea id="input_area" rows="10" cols="50"></textarea></p>
+<p><input type="button" onclick="convert();" value="変換"></p>
+
+<h2>出力</h2>
+<p><textarea id="output_area" rows="10" cols="50"></textarea></p>
+
+</body>
+</html>
