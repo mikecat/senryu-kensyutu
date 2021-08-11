@@ -1,0 +1,72 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<title>リアルタイム用テンプレート生成</title>
+<script>
+"use strict";
+function dateToStr(d) {
+	const year = ("0000" + d.getFullYear()).substr(-4);
+	const month = ("00" + (d.getMonth() + 1)).substr(-2);
+	const date = ("00" + d.getDate()).substr(-2);
+	return year + month + date;
+}
+
+function getYesterday(d) {
+	return new Date(d.getTime() - 24 * 60 * 60 * 1000);
+}
+
+function generate() {
+	const inputDateRaw = document.getElementById("target_date").value;
+	const inputDateParsed = inputDateRaw.match(/^([0-9]{4})([0-9]{2})([0-9]{2})$/);
+	if (inputDateParsed === null) {
+		alert("invalid date");
+		return;
+	}
+	const inputDate = new Date(parseInt(inputDateParsed[1]), parseInt(inputDateParsed[2]) - 1, parseInt(inputDateParsed[3]));
+	const yesterday = getYesterday(inputDate);
+
+	document.getElementById("result_main").value =
+		"<!DOCTYPE html>\n" +
+		"<html lang=\"ja\">\n" +
+		"<head>\n" +
+		"<meta charset=\"UTF-8\">\n" +
+		"<title>川柳報告 - リアルタイム - " + inputDate.getFullYear() + "年" + (inputDate.getMonth() + 1) + "月" + inputDate.getDate() + "日</title>\n" +
+		"</head>\n" +
+		"<body>\n" +
+		"<h1>川柳報告 - リアルタイム - " + inputDate.getFullYear() + "年" + (inputDate.getMonth() + 1) + "月" + inputDate.getDate() + "日</h1>\n" +
+		"<p><a href=\"" + dateToStr(yesterday) + ".html\">" + (yesterday.getMonth() + 1) + "月" + yesterday.getDate() + "日</a> | <a href=\"./\">戻る</a></p>\n" +
+		"\n" +
+		"\n" +
+		"<hr>\n" +
+		"<p><a href=\"" + dateToStr(yesterday) + ".html\">" + (yesterday.getMonth() + 1) + "月" + yesterday.getDate() + "日</a> | <a href=\"./\">戻る</a></p>\n" +
+		"</body>\n" +
+		"</html>\n";
+
+	document.getElementById("result_link").value =
+		" | <a href=\"" + dateToStr(inputDate) + ".html\">" + (inputDate.getMonth() + 1) + "月" + inputDate.getDate() + "日</a>";
+}
+
+window.addEventListener("load", function() {
+	// 日付が変わった後その前日のデータを生成することを想定するので、昨日の日付を入れる
+	document.getElementById("target_date").value = dateToStr(getYesterday(new Date()));
+	generate();
+});
+</script>
+</head>
+<body>
+<h1>リアルタイム用テンプレート生成</h1>
+
+<h2>日付</h2>
+<p><code>yyyymmdd</code>で入力:<input type="text" value="" id="target_date" size="12"></p>
+<p><input type="button" onclick="generate();" value="生成"></p>
+
+<h2>生成結果</h2>
+<h3>当日用</h3>
+<p><textarea id="result_main" rows="15" cols="80"></textarea></p>
+
+<h3>前日からのリンク用</h3>
+<p><input type="text" value-"" id="result_link" size="80"></p>
+
+</body>
+</html>
