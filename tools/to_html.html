@@ -12,16 +12,25 @@ function convert() {
 	const input_data = document.getElementById("input_area").value.replaceAll("\r\n", "\n").replaceAll("\r", "\n").split("\n");
 	let result = "";
 	let want_ul = true;
+	let blank_count = 0;
 	for (let i = 0; i < input_data.length; i++) {
-		if (input_data[i].substr(0, 1) === "#") {
-			const str = input_data[i].substr(1).replace(/^\s+/, "");
-			if (!want_ul) result += "</ul>\n\n";
-			result += "<h2>" + esukeepu(str) + "</h2>\n";
-			want_ul = true;
-		} else if (input_data[i] !== "") {
-			if (want_ul) result += "<ul>\n";
-			result += "<li>" + esukeepu(input_data[i]) + "</li>\n";
-			want_ul = false;
+		if (input_data[i] === "") {
+			blank_count++;
+		} else {
+			if (blank_count > 1) {
+				result += "<!-- " + blank_count + " blank lines -->\n";
+			}
+			if (input_data[i].substr(0, 1) === "#") {
+				const str = input_data[i].substr(1).replace(/^\s+/, "");
+				if (!want_ul) result += "</ul>\n\n";
+				result += "<h2>" + esukeepu(str) + "</h2>\n";
+				want_ul = true;
+			} else if (input_data[i] !== "") {
+				if (want_ul) result += "<ul>\n";
+				result += "<li>" + esukeepu(input_data[i]) + "</li>\n";
+				want_ul = false;
+			}
+			blank_count = 0;
 		}
 	}
 	if (!want_ul) result += "</ul>\n";
