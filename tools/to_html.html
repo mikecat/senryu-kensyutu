@@ -8,33 +8,51 @@ function esukeepu(str) {
 	return str.replaceAll("<", "&lt;").replaceAll(">", "&gt;").replaceAll("&", "&amp;");
 }
 
+function check(lineno, str) {
+	let res = "";
+	if (str.split(/ +/).length !== 3) res += "・半角空白で3分割になっていません\n";
+	if (str.indexOf("  ") >= 0) res += "・半角空白が連続しています\n";
+	if (str.indexOf("　") >= 0) res += "・全角空白があります\n";
+	const match = str.match(/^["23$4][ 　]/);
+	if (match) res += "・「" + match[0] + "」で始まります\n";
+	if (str.indexOf("<") >= 0 || str.indexOf(">") >= 0) res += "・「<」または「>」があります\n";
+	if (str.endsWith("s")) res += "・sで終わります\n";
+
+	if (res === "") return "";
+	return "" + lineno + "行目：" + str + "\n" + res;
+}
+
 function convert() {
 	const input_data = document.getElementById("input_area").value.replaceAll("\r\n", "\n").replaceAll("\r", "\n").split("\n");
 	let result = "";
 	let want_ul = true;
 	let blank_count = 0;
+	let check_result = "";
 	for (let i = 0; i < input_data.length; i++) {
 		if (input_data[i] === "") {
 			blank_count++;
 		} else {
 			if (blank_count > 1) {
 				result += "<!-- " + blank_count + " blank lines -->\n";
+				check_result += "" + (i + 1 - blank_count) + "行目：\n・空行が連続しています\n";
 			}
 			if (input_data[i].substr(0, 1) === "#") {
 				const str = input_data[i].substr(1).replace(/^\s+/, "");
 				if (!want_ul) result += "</ul>\n\n";
 				result += "<h2>" + esukeepu(str) + "</h2>\n";
 				want_ul = true;
-			} else if (input_data[i] !== "") {
+			} else {
 				if (want_ul) result += "<ul>\n";
 				result += "<li>" + esukeepu(input_data[i]) + "</li>\n";
 				want_ul = false;
+				check_result += check(i + 1, input_data[i]);
 			}
 			blank_count = 0;
 		}
 	}
 	if (!want_ul) result += "</ul>\n";
 	document.getElementById("output_area").value = result;
+	document.getElementById("check_area").value = check_result;
 }
 </script>
 </head>
@@ -50,6 +68,9 @@ function convert() {
 
 <h2>出力</h2>
 <p><textarea id="output_area" rows="10" cols="50"></textarea></p>
+
+<h2>チェック結果</h2>
+<p><textarea id="check_area" rows="10" cols="50"></textarea></p>
 
 </body>
 </html>
