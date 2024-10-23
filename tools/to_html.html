@@ -8,7 +8,7 @@ function esukeepu(str) {
 	return str.replaceAll("<", "&lt;").replaceAll(">", "&gt;").replaceAll("&", "&amp;");
 }
 
-function check(lineno, str) {
+function check(lineno, str, lines) {
 	let res = "";
 	if (str.split(/ +/).length !== 3) res += "・半角空白で3分割になっていません\n";
 	if (str.indexOf("  ") >= 0) res += "・半角空白が連続しています\n";
@@ -17,6 +17,7 @@ function check(lineno, str) {
 	if (match) res += "・「" + match[0] + "」で始まります\n";
 	if (str.indexOf("<") >= 0 || str.indexOf(">") >= 0) res += "・「<」または「>」があります\n";
 	if (str.endsWith("s")) res += "・sで終わります\n";
+	if (lines.has(str)) res += "・" + lines.get(str) + "行目と同じです\n";
 
 	if (res === "") return "";
 	return "" + lineno + "行目：" + str + "\n" + res;
@@ -28,6 +29,7 @@ function convert() {
 	let want_ul = true;
 	let blank_count = 0;
 	let check_result = "";
+	const lines = new Map();
 	for (let i = 0; i < input_data.length; i++) {
 		if (input_data[i] === "") {
 			blank_count++;
@@ -41,11 +43,13 @@ function convert() {
 				if (!want_ul) result += "</ul>\n\n";
 				result += "<h2>" + esukeepu(str) + "</h2>\n";
 				want_ul = true;
+				lines.clear();
 			} else {
 				if (want_ul) result += "<ul>\n";
 				result += "<li>" + esukeepu(input_data[i]) + "</li>\n";
 				want_ul = false;
-				check_result += check(i + 1, input_data[i]);
+				check_result += check(i + 1, input_data[i], lines);
+				lines.set(input_data[i], i + 1);
 			}
 			blank_count = 0;
 		}
